@@ -6,7 +6,12 @@
 <title>Vincent OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/iconfont/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/iconfont/tabler-icons.min.css" id="tablerFallback" media="print" onload="this.media='all'; this.onload=null;">
+<style>
+  /* Ensure icons render correctly on all browsers */
+  .ti { display: inline-block; font-size: inherit; line-height: 1; vertical-align: -0.125em; }
+</style>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -37,17 +42,20 @@
   <nav class="mobile-nav">
     <div class="mobile-nav-inner">
       <span class="brand">Vincent<span>OS</span></span>
-      <a href="#home" data-page="home">Home</a>
-      <a href="#schedule" data-page="schedule">Schedule</a>
-      <a href="#course" data-page="course">Course</a>
-      <a href="#cse" data-page="cse">CSE</a>
-      <a href="#pomodoro" data-page="pomodoro">Timer</a>
-      <a href="#workout" data-page="workout">Workout</a>
-      <a href="#sleep" data-page="sleep">Sleep</a>
-      <a href="#journal" data-page="journal">Journal</a>
-      <a href="#habits" data-page="habits">Habits</a>
-      <a href="#reminders" data-page="reminders">Reminders</a>
-      <a href="#settings" data-page="settings">Settings</a>
+      <button class="btn btn-ghost mobile-theme-toggle" id="themeToggleMobile" style="flex-shrink:0; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-md);">
+        <i class="ti ti-moon" aria-hidden="true" id="themeIconMobile"></i>
+      </button>
+      <a href="#home" data-page="home"><i class="ti ti-home" aria-hidden="true"></i> Home</a>
+      <a href="#schedule" data-page="schedule"><i class="ti ti-calendar" aria-hidden="true"></i> Schedule</a>
+      <a href="#course" data-page="course"><i class="ti ti-school" aria-hidden="true"></i> Course</a>
+      <a href="#cse" data-page="cse"><i class="ti ti-certificate" aria-hidden="true"></i> CSE</a>
+      <a href="#pomodoro" data-page="pomodoro"><i class="ti ti-clock" aria-hidden="true"></i> Timer</a>
+      <a href="#workout" data-page="workout"><i class="ti ti-barbell" aria-hidden="true"></i> Workout</a>
+      <a href="#sleep" data-page="sleep"><i class="ti ti-moon" aria-hidden="true"></i> Sleep</a>
+      <a href="#journal" data-page="journal"><i class="ti ti-notebook" aria-hidden="true"></i> Journal</a>
+      <a href="#habits" data-page="habits"><i class="ti ti-flame" aria-hidden="true"></i> Habits</a>
+      <a href="#reminders" data-page="reminders"><i class="ti ti-bell" aria-hidden="true"></i> Reminders</a>
+      <a href="#settings" data-page="settings"><i class="ti ti-settings" aria-hidden="true"></i> Settings</a>
     </div>
   </nav>
 
