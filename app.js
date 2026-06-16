@@ -60,9 +60,14 @@ function getPageFromHash() {
 
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
-  document.getElementById("themeToggleLabel").textContent = theme === "dark" ? "Light mode" : "Dark mode";
-  document.getElementById("themeToggle").querySelector("i").className =
-    theme === "dark" ? "ti ti-sun" : "ti ti-moon";
+  // Desktop toggle
+  const label = document.getElementById("themeToggleLabel");
+  const icon = document.getElementById("themeToggle").querySelector("i");
+  if (label) label.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+  if (icon) icon.className = theme === "dark" ? "ti ti-sun" : "ti ti-moon";
+  // Mobile toggle
+  const mobileIcon = document.getElementById("themeIconMobile");
+  if (mobileIcon) mobileIcon.className = theme === "dark" ? "ti ti-sun" : "ti ti-moon";
   localStorage.setItem("vincentOSTheme", theme);
 }
 
@@ -963,6 +968,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initTheme();
   document.getElementById("themeToggle").onclick = () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    applyTheme(current === "dark" ? "light" : "dark");
+  };
+  document.getElementById("themeToggleMobile").onclick = () => {
     const current = document.documentElement.getAttribute("data-theme");
     applyTheme(current === "dark" ? "light" : "dark");
   };
