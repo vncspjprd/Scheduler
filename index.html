@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vincent OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/iconfont/tabler-icons.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- Desktop sidebar -->
+  <aside class="sidebar">
+    <div class="brand">Vincent<span>OS</span></div>
+    <button class="btn btn-ghost" id="themeToggle" style="margin: 0 0.75rem 1rem;">
+      <i class="ti ti-moon" aria-hidden="true"></i> <span id="themeToggleLabel">Dark mode</span>
+    </button>
+    <a href="#home" data-page="home"><i class="ti ti-home" aria-hidden="true"></i> Home</a>
+    <a href="#schedule" data-page="schedule"><i class="ti ti-calendar" aria-hidden="true"></i> Schedule</a>
+    <a href="#course" data-page="course"><i class="ti ti-school" aria-hidden="true"></i> Course</a>
+    <a href="#cse" data-page="cse"><i class="ti ti-certificate" aria-hidden="true"></i> CSE Tracker</a>
+    <a href="#pomodoro" data-page="pomodoro"><i class="ti ti-clock" aria-hidden="true"></i> Timer</a>
+    <a href="#workout" data-page="workout"><i class="ti ti-barbell" aria-hidden="true"></i> Workout</a>
+    <a href="#sleep" data-page="sleep"><i class="ti ti-moon" aria-hidden="true"></i> Sleep</a>
+    <a href="#journal" data-page="journal"><i class="ti ti-notebook" aria-hidden="true"></i> Journal</a>
+    <a href="#habits" data-page="habits"><i class="ti ti-flame" aria-hidden="true"></i> Habits</a>
+    <a href="#reminders" data-page="reminders"><i class="ti ti-bell" aria-hidden="true"></i> Reminders</a>
+    <a href="#settings" data-page="settings"><i class="ti ti-settings" aria-hidden="true"></i> Settings</a>
+    <div class="sidebar-footer">Everything saves automatically to this browser.</div>
+  </aside>
+
+  <!-- Mobile top nav -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-inner">
+      <span class="brand">Vincent<span>OS</span></span>
+      <a href="#home" data-page="home">Home</a>
+      <a href="#schedule" data-page="schedule">Schedule</a>
+      <a href="#course" data-page="course">Course</a>
+      <a href="#cse" data-page="cse">CSE</a>
+      <a href="#pomodoro" data-page="pomodoro">Timer</a>
+      <a href="#workout" data-page="workout">Workout</a>
+      <a href="#sleep" data-page="sleep">Sleep</a>
+      <a href="#journal" data-page="journal">Journal</a>
+      <a href="#habits" data-page="habits">Habits</a>
+      <a href="#reminders" data-page="reminders">Reminders</a>
+      <a href="#settings" data-page="settings">Settings</a>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- ===== HOME / DASHBOARD ===== -->
+    <section class="page" id="page-home">
+      <h1 class="page-title">Good day, Vincent</h1>
+      <p class="page-subtitle" id="homeDateLabel"></p>
+
+      <div class="card-grid mb-1">
+        <div class="stat-card">
+          <div class="stat-label"><i class="ti ti-target-arrow" aria-hidden="true"></i> Today's completion</div>
+          <div class="stat-value" id="homeCompletion">0%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><i class="ti ti-calendar-event" aria-hidden="true"></i> Days until CSE</div>
+          <div class="stat-value" id="homeExamCountdown">--</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><i class="ti ti-flame" aria-hidden="true"></i> Productive streak</div>
+          <div class="stat-value" id="homeStreak"><span class="streak-flame">🔥</span> 0 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><i class="ti ti-school" aria-hidden="true"></i> Course progress</div>
+          <div class="stat-value" id="homeCourseProgress">0%</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">Today's priorities</div>
+          <div class="section-sub" id="homePhaseLabel"></div>
+        </div>
+        <div class="card">
+          <div class="badges" id="homeDayBadges"></div>
+          <div class="priority-list" id="homePriorityList"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">This week's focus</div>
+        </div>
+        <div class="card">
+          <div id="homePhaseFocus"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SCHEDULE ===== -->
+    <section class="page hidden" id="page-schedule">
+      <h1 class="page-title">Schedule</h1>
+      <p class="page-subtitle">Wake 6:00 AM &middot; Bed 11:00 PM &middot; Civil Service Exam &mdash; August 8</p>
+
+      <!-- Calendar view -->
+      <div class="section" id="calendarSection">
+        <div class="card">
+          <div class="flex-between mb-1">
+            <button class="btn btn-ghost" id="calPrevMonth" aria-label="Previous month"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+            <div class="section-title" id="calMonthLabel"></div>
+            <button class="btn btn-ghost" id="calNextMonth" aria-label="Next month"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+          </div>
+          <div id="calendarGrid"></div>
+          <div class="mode-description mt-1">Click a date to view or edit that day's schedule. Days with a custom schedule are marked.</div>
+        </div>
+      </div>
+
+      <!-- Selected day view -->
+      <div class="section hidden" id="dayViewSection">
+        <div class="section-head">
+          <div class="section-title" id="selectedDateLabel"></div>
+          <button class="btn btn-ghost" id="backToCalendar"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back to calendar</button>
+        </div>
+
+        <div class="card mb-1">
+          <div class="section-head">
+            <div class="section-title" style="font-size:14px;">Choose a template</div>
+          </div>
+          <div class="mode-switcher" id="templateSwitcher"></div>
+          <div class="mode-description" id="templateDescription"></div>
+
+          <div class="edit-toggle-row">
+            <button class="btn" id="editToggle"><i class="ti ti-pencil" aria-hidden="true"></i> Edit schedule</button>
+          </div>
+          <div id="scheduleRows"></div>
+          <div id="addBlockContainer"></div>
+          <div id="noteContainer"></div>
+        </div>
+
+        <div class="card">
+          <div class="section-head">
+            <div class="section-title" style="font-size:14px;">Daily checklist</div>
+          </div>
+          <div class="progress-wrap mb-1">
+            <div class="progress-bar"><div class="progress-fill" id="dayProgress" style="width:0%"></div></div>
+            <div class="progress-label" id="dayProgressLabel">0 / 0</div>
+          </div>
+          <div id="checklistRows"></div>
+          <div class="add-row">
+            <input type="text" id="newTaskInput" placeholder="Add a task for this day...">
+            <button class="btn" id="addTaskBtn"><i class="ti ti-plus" aria-hidden="true"></i> Add</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ===== COURSE TRACKER ===== -->
+    <section class="page hidden" id="page-course">
+      <h1 class="page-title">Course tracker</h1>
+      <p class="page-subtitle" id="coursePageSubtitle"></p>
+
+      <div class="section">
+        <div class="card">
+          <div class="flex-between mb-1">
+            <div class="section-title" id="courseName"></div>
+            <div class="section-sub" id="courseDeadlineLabel"></div>
+          </div>
+          <div class="progress-wrap mb-1">
+            <div class="progress-bar"><div class="progress-fill success" id="courseProgressFill" style="width:0%"></div></div>
+            <div class="progress-label" id="courseProgressLabel">0%</div>
+          </div>
+          <div id="courseModuleList"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">Course details</div>
+        </div>
+        <div class="card" id="courseDetailsCard"></div>
+      </div>
+    </section>
+
+    <!-- ===== CSE TRACKER ===== -->
+    <section class="page hidden" id="page-cse">
+      <h1 class="page-title">Civil Service Exam tracker</h1>
+      <p class="page-subtitle">Track your mastery per subject. Drag the sliders as you review.</p>
+
+      <div class="section">
+        <div class="card">
+          <div class="flex-between mb-1">
+            <div class="section-title">Subject mastery</div>
+            <button class="btn" id="cseEditToggle"><i class="ti ti-pencil" aria-hidden="true"></i> Edit progress</button>
+          </div>
+          <div id="cseSubjectList"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">Overall readiness</div>
+        </div>
+        <div class="card">
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="cseOverallFill" style="width:0%"></div></div>
+            <div class="progress-label" id="cseOverallLabel">0%</div>
+          </div>
+          <p class="mode-description mt-1" id="cseWeakAreas"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TIMER ===== -->
+    <section class="page hidden" id="page-pomodoro">
+      <h1 class="page-title">Timer</h1>
+      <p class="page-subtitle">Use this for review sessions, course modules, or custom countdowns.</p>
+
+      <div class="section">
+        <div class="card">
+          <div class="pomodoro-mode-tabs" id="timerTypeTabs">
+            <button class="mode-btn active" data-timertype="pomodoro">Pomodoro</button>
+            <button class="mode-btn" data-timertype="countdown">Countdown</button>
+            <button class="mode-btn" data-timertype="stopwatch">Timer (stopwatch)</button>
+          </div>
+
+          <!-- Pomodoro presets -->
+          <div class="pomodoro-mode-tabs" id="pomodoroPresets">
+            <button class="mode-btn active" data-pomo="25">Focus (25m)</button>
+            <button class="mode-btn" data-pomo="5">Short break (5m)</button>
+            <button class="mode-btn" data-pomo="15">Long break (15m)</button>
+          </div>
+
+          <!-- Countdown custom input -->
+          <div class="pomodoro-mode-tabs hidden" id="countdownInputRow" style="gap:8px; align-items:center;">
+            <input type="number" id="countdownHours" min="0" max="23" value="0" style="width:64px; text-align:center;" aria-label="Hours">
+            <span class="text-tertiary">h</span>
+            <input type="number" id="countdownMinutes" min="0" max="59" value="10" style="width:64px; text-align:center;" aria-label="Minutes">
+            <span class="text-tertiary">m</span>
+            <input type="number" id="countdownSeconds" min="0" max="59" value="0" style="width:64px; text-align:center;" aria-label="Seconds">
+            <span class="text-tertiary">s</span>
+            <button class="btn" id="setCountdownBtn"><i class="ti ti-check" aria-hidden="true"></i> Set</button>
+          </div>
+
+          <div class="pomodoro-display" id="pomodoroDisplay">25:00</div>
+          <div class="pomodoro-controls">
+            <button class="btn btn-primary" id="pomodoroStart"><i class="ti ti-player-play" aria-hidden="true"></i> Start</button>
+            <button class="btn" id="pomodoroPause"><i class="ti ti-player-pause" aria-hidden="true"></i> Pause</button>
+            <button class="btn" id="pomodoroReset"><i class="ti ti-refresh" aria-hidden="true"></i> Reset</button>
+          </div>
+          <div class="pomodoro-status" id="pomodoroStatus">Sessions completed today: 0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== WORKOUT ===== -->
+    <section class="page hidden" id="page-workout">
+      <h1 class="page-title">Workout</h1>
+      <p class="page-subtitle">Foldable push-up board routines, matched to your laundry mode.</p>
+
+      <div class="section">
+        <div class="card">
+          <div class="workout-mode-tabs" id="workoutModeTabs"></div>
+          <p class="mode-description mb-1" id="workoutDescription"></p>
+          <div class="exercise-list" id="workoutExerciseList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLEEP TRACKER ===== -->
+    <section class="page hidden" id="page-sleep">
+      <h1 class="page-title">Sleep tracker</h1>
+      <p class="page-subtitle">Target: sleep at 11:00 PM, wake at 6:00 AM.</p>
+
+      <div class="section">
+        <div class="card">
+          <div id="sleepRows"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== JOURNAL ===== -->
+    <section class="page hidden" id="page-journal">
+      <h1 class="page-title">Daily journal</h1>
+      <p class="page-subtitle" id="journalDateLabel"></p>
+
+      <div class="section">
+        <div class="card">
+          <div class="journal-field">
+            <label for="journalDone">What I finished today</label>
+            <textarea id="journalDone" placeholder="e.g. Finished Module 3 quiz, completed 2 review sessions..."></textarea>
+          </div>
+          <div class="journal-field">
+            <label for="journalLearned">What I learned today</label>
+            <textarea id="journalLearned" placeholder="e.g. Learned how to clean messy datasets in Excel..."></textarea>
+          </div>
+          <div class="journal-field">
+            <label for="journalTomorrow">What I need to do tomorrow</label>
+            <textarea id="journalTomorrow" placeholder="e.g. Start Module 4, do a CSE math drill set..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">Past entries</div>
+        </div>
+        <div class="card" id="journalHistory"></div>
+      </div>
+    </section>
+
+    <!-- ===== HABITS ===== -->
+    <section class="page hidden" id="page-habits">
+      <h1 class="page-title">Weekly habits</h1>
+      <p class="page-subtitle">Track your daily habits across the week.</p>
+
+      <div class="section">
+        <div class="card">
+          <div class="habit-table-wrap">
+            <table class="habit-table" id="habitTable"></table>
+          </div>
+          <div class="add-row">
+            <input type="text" id="newHabitInput" placeholder="Add a habit to track...">
+            <button class="btn" id="addHabitBtn"><i class="ti ti-plus" aria-hidden="true"></i> Add habit</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">Weekly to-do list</div>
+        </div>
+        <div class="card">
+          <div id="todoRows"></div>
+          <div class="add-row">
+            <input type="text" id="newTodoInput" placeholder="Add a to-do for the week...">
+            <button class="btn" id="addTodoBtn"><i class="ti ti-plus" aria-hidden="true"></i> Add</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== REMINDERS ===== -->
+    <section class="page hidden" id="page-reminders">
+      <h1 class="page-title">Reminders</h1>
+      <p class="page-subtitle">Important dates and one-off reminders.</p>
+
+      <div class="section">
+        <div class="card">
+          <div id="reminderRows"></div>
+          <div class="add-row">
+            <input type="text" id="newReminderInput" placeholder="Add a reminder...">
+            <button class="btn" id="addReminderBtn"><i class="ti ti-plus" aria-hidden="true"></i> Add</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SETTINGS ===== -->
+    <section class="page hidden" id="page-settings">
+      <h1 class="page-title">Settings</h1>
+      <p class="page-subtitle">Manage your data.</p>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">Cloud sync</div>
+          <div class="section-sub" id="syncStatus">Checking...</div>
+        </div>
+        <div class="card">
+          <p class="mode-description mb-1">Link this device to a sync code so your data stays the same across your phone, laptop, and any browser. The first device generates a code; other devices enter that same code to link.</p>
+
+          <div id="syncNotLinked">
+            <div class="flex-between mb-1" style="flex-wrap: wrap; gap: 12px;">
+              <div>
+                <div class="section-title" style="font-size:14px;">Option A - Generate a new code</div>
+                <p class="mode-description mt-1">Use this on your first/main device. It uploads your current data and gives you a code.</p>
+              </div>
+              <button class="btn btn-primary" id="generateSyncBtn"><i class="ti ti-cloud-upload" aria-hidden="true"></i> Generate sync code</button>
+            </div>
+            <div class="flex-between mt-1" style="flex-wrap: wrap; gap: 12px; padding-top: 1rem; border-top: 1px solid var(--border-soft);">
+              <div>
+                <div class="section-title" style="font-size:14px;">Option B - Enter an existing code</div>
+                <p class="mode-description mt-1">Use this on other devices. This will replace local data with the synced data.</p>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="syncCodeInput" placeholder="e.g. AB12CD" style="text-transform: uppercase; width: 120px;" maxlength="6">
+                <button class="btn" id="linkSyncBtn"><i class="ti ti-link" aria-hidden="true"></i> Link</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="syncLinked" class="hidden">
+            <div class="flex-between" style="flex-wrap: wrap; gap: 12px;">
+              <div>
+                <div class="section-title" style="font-size:14px;">Your sync code</div>
+                <p class="mode-description mt-1">Enter this exact code on your other devices to link them to this data.</p>
+                <div class="stat-value" id="syncCodeDisplay" style="margin-top:6px; letter-spacing: 0.1em;"></div>
+              </div>
+              <button class="btn" id="unlinkSyncBtn" style="border-color: var(--coral); color: var(--coral-text);"><i class="ti ti-unlink" aria-hidden="true"></i> Unlink this device</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="card">
+          <div class="flex-between mb-1">
+            <div>
+              <div class="section-title">Reset all data</div>
+              <p class="mode-description mt-1">This clears your schedule edits, checklists, habits, course progress, CSE tracker, journal, and sleep log. This cannot be undone.</p>
+            </div>
+            <button class="btn" id="resetDataBtn" style="border-color: var(--coral); color: var(--coral-text);"><i class="ti ti-trash" aria-hidden="true"></i> Reset everything</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-sync.js"></script>
+<script src="data.js"></script>
+<script src="utils.js"></script>
+<script src="storage.js"></script>
+<script src="components.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
