@@ -768,3 +768,22 @@ table.habit-table input[type=checkbox] {
   .time-picker-wrap input[type=time] { width: 88px; font-size: 11.5px; padding: 6px 4px; }
   .schedule-row.editing { flex-wrap: wrap; gap: 6px; }
 }
+
+.ti {
+  font-size: inherit;
+  line-height: 1;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sidebar a i,
+.mobile-nav a i {
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.btn i, .del-btn i, .mode-btn i {
+  font-size: 15px;
+  flex-shrink: 0;
+}
