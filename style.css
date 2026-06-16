@@ -198,9 +198,23 @@ body {
 .page.hidden { display: none; }
 
 @media (max-width: 860px) {
-  .sidebar { display: none; }
-  .mobile-nav { display: block; }
-  .page { padding: 1.25rem 1rem 3rem; }
+  .sidebar { display: none !important; }
+  .mobile-nav { display: block !important; }
+  .app-shell { flex-direction: column; }
+  .main-content { width: 100%; min-width: 0; }
+  .page { padding: 1.25rem 1rem 3rem; width: 100%; }
+  .card-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .card-grid { grid-template-columns: 1fr; }
+  h1.page-title { font-size: 22px; }
+  .schedule-time { min-width: 86px; font-size: 11px; }
+  .pomodoro-display { font-size: 48px; }
+  .mobile-nav .mobile-nav-inner { gap: 2px; padding: 0 0.5rem; }
+  .mobile-nav a { padding: 5px 9px; font-size: 12px; }
+  .stat-card .stat-value { font-size: 22px; }
+  .section-title { font-size: 15px; }
 }
 
 /* ===== Typography ===== */
