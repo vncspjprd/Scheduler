@@ -80,13 +80,18 @@ const Components = {
       row.dataset.index = i;
       row.innerHTML =
         '<span class="drag-handle" aria-label="Drag to reorder"><i class="ti ti-grip-vertical" aria-hidden="true"></i></span>' +
-        '<input type="text" class="schedule-time-input" value="' + escapeHtml(b.time) + '" data-field="time" data-i="' + i + '">' +
+        '<div class="time-picker-wrap" data-i="' + i + '">' +
+          '<input type="time" class="time-start" value="' + Components._timeToInput(b.time, "start") + '" aria-label="Start time">' +
+          '<span class="time-sep">to</span>' +
+          '<input type="time" class="time-end" value="' + Components._timeToInput(b.time, "end") + '" aria-label="End time">' +
+        '</div>' +
         '<input type="text" class="schedule-label-input" value="' + escapeHtml(b.label) + '" data-field="label" data-i="' + i + '">' +
         '<select class="tag-select" data-field="cls" data-i="' + i + '">' + Components._tagOptionsHtml(b.cls) + "</select>" +
         '<button class="del-btn" data-del-block="' + i + '" aria-label="Remove block"><i class="ti ti-trash" aria-hidden="true"></i></button>';
       rowsEl.appendChild(row);
     });
 
+    // Label + tag field listeners
     rowsEl.querySelectorAll("[data-field]").forEach((inp) => {
       inp.addEventListener("input", () => {
         const i = +inp.dataset.i, field = inp.dataset.field;
@@ -95,6 +100,19 @@ const Components = {
     });
     rowsEl.querySelectorAll("[data-del-block]").forEach((btn) => {
       btn.onclick = () => callbacks.onDeleteBlock(+btn.dataset.delBlock);
+    });
+
+    // Time picker listeners
+    rowsEl.querySelectorAll(".time-picker-wrap").forEach((wrap) => {
+      const i = +wrap.dataset.i;
+      const startEl = wrap.querySelector(".time-start");
+      const endEl = wrap.querySelector(".time-end");
+      const update = () => {
+        const timeStr = Components._inputToTimeStr(startEl.value, endEl.value);
+        callbacks.onFieldChange(i, "time", timeStr);
+      };
+      startEl.addEventListener("change", update);
+      endEl.addEventListener("change", update);
     });
 
     // Drag-and-drop reordering
@@ -130,13 +148,19 @@ const Components = {
     const addRow = document.createElement("div");
     addRow.className = "add-block-row";
     addRow.innerHTML =
-      '<input type="text" class="schedule-time-input" id="newBlockTime" placeholder="e.g. 9:00 - 10:00 AM">' +
+      '<div class="time-picker-wrap" id="newBlockTimePicker">' +
+        '<input type="time" id="newBlockStart" aria-label="Start time">' +
+        '<span class="time-sep">to</span>' +
+        '<input type="time" id="newBlockEnd" aria-label="End time">' +
+      '</div>' +
       '<input type="text" class="schedule-label-input" id="newBlockLabel" placeholder="Activity">' +
       '<select id="newBlockTag" class="tag-select">' + Components._tagOptionsHtml("tag-free") + "</select>" +
       '<button class="btn" id="addBlockBtn"><i class="ti ti-plus" aria-hidden="true"></i> Add block</button>';
     addContainer.appendChild(addRow);
     document.getElementById("addBlockBtn").onclick = () => {
-      const time = document.getElementById("newBlockTime").value.trim();
+      const startVal = document.getElementById("newBlockStart").value;
+      const endVal = document.getElementById("newBlockEnd").value;
+      const time = Components._inputToTimeStr(startVal, endVal);
       const label = document.getElementById("newBlockLabel").value.trim();
       const cls = document.getElementById("newBlockTag").value;
       if (time && label) callbacks.onAddBlock(time, label, cls);
@@ -155,6 +179,56 @@ const Components = {
 
   _tagOptionsHtml(selected) {
     return TAG_OPTIONS.map((o) => '<option value="' + o.value + '"' + (o.value === selected ? " selected" : "") + ">" + o.label + "</option>").join("");
+  },
+
+  // ===== Time picker helpers =====
+  _timeToInput(timeStr, which) {
+    if (!timeStr) return "";
+    if (/^morning$/i.test(timeStr.trim())) return which === "start" ? "06:00" : "09:00";
+    if (/^afternoon$/i.test(timeStr.trim())) return which === "start" ? "12:00" : "17:00";
+    if (/^evening/i.test(timeStr.trim())) return which === "start" ? "18:00" : "21:00";
+    const parts = timeStr.split(/\s*[-–]\s*/);
+    if (parts.length < 2) {
+      return which === "start" ? Components._parseTimeTo24(parts[0]) : "";
+    }
+    const raw = which === "start" ? parts[0].trim() : parts[1].trim();
+    return Components._parseTimeTo24(raw);
+  },
+
+  _parseTimeTo24(str) {
+    if (!str) return "";
+    str = str.trim().replace(/onwards|only|onwards.*$/i, "").trim();
+    const isPM = /pm/i.test(str);
+    const isAM = /am/i.test(str);
+    str = str.replace(/[apm\s]/gi, "").trim();
+    const colonIdx = str.indexOf(":");
+    let h, m;
+    if (colonIdx !== -1) {
+      h = parseInt(str.slice(0, colonIdx));
+      m = parseInt(str.slice(colonIdx + 1));
+    } else {
+      h = parseInt(str);
+      m = 0;
+    }
+    if (isNaN(h) || isNaN(m)) return "";
+    if (isPM && h !== 12) h += 12;
+    if (isAM && h === 12) h = 0;
+    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  },
+
+  _inputToTimeStr(startVal, endVal) {
+    if (!startVal && !endVal) return "";
+    const fmt = (val) => {
+      if (!val) return "";
+      const [hStr, mStr] = val.split(":");
+      let h = parseInt(hStr), m = parseInt(mStr);
+      const suffix = h >= 12 ? "PM" : "AM";
+      if (h > 12) h -= 12;
+      if (h === 0) h = 12;
+      return h + ":" + String(m).padStart(2, "0") + " " + suffix;
+    };
+    if (!endVal) return fmt(startVal);
+    return fmt(startVal) + " - " + fmt(endVal);
   },
 
   // ===== Checklist =====
