@@ -198,9 +198,23 @@ body {
 .page.hidden { display: none; }
 
 @media (max-width: 860px) {
-  .sidebar { display: none; }
-  .mobile-nav { display: block; }
-  .page { padding: 1.25rem 1rem 3rem; }
+  .sidebar { display: none !important; }
+  .mobile-nav { display: block !important; }
+  .app-shell { flex-direction: column; }
+  .main-content { width: 100%; min-width: 0; }
+  .page { padding: 1.25rem 1rem 3rem; width: 100%; }
+  .card-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .card-grid { grid-template-columns: 1fr; }
+  h1.page-title { font-size: 22px; }
+  .schedule-time { min-width: 86px; font-size: 11px; }
+  .pomodoro-display { font-size: 48px; }
+  .mobile-nav .mobile-nav-inner { gap: 2px; padding: 0 0.5rem; }
+  .mobile-nav a { padding: 5px 9px; font-size: 12px; }
+  .stat-card .stat-value { font-size: 22px; }
+  .section-title { font-size: 15px; }
 }
 
 /* ===== Typography ===== */
@@ -327,6 +341,9 @@ button {
   align-items: center;
   gap: 6px;
   transition: all var(--transition);
+  min-height: 36px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); }
 .btn.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -894,6 +911,11 @@ table.habit-table input[type=checkbox] {
 .mb-1 { margin-bottom: 0.75rem; }
 
 @media (max-width: 480px) {
+  .btn { min-height: 40px; padding: 8px 12px; font-size: 12.5px; }
+  .del-btn { min-width: 36px; min-height: 36px; padding: 8px; }
+  .mode-btn { padding: 7px 12px; font-size: 12px; }
+  .day-tab { padding: 6px 12px; font-size: 12px; }
+  .add-row button { min-height: 40px; }
   .card-grid { grid-template-columns: 1fr; }
   h1.page-title { font-size: 22px; }
   .schedule-time { min-width: 86px; font-size: 11px; }
@@ -909,4 +931,23 @@ table.habit-table input[type=checkbox] {
   .add-row button { min-height: 40px; }
   .time-picker-wrap input[type=time] { width: 88px; font-size: 11.5px; padding: 6px 4px; }
   .schedule-row.editing { flex-wrap: wrap; gap: 6px; }
+}
+
+.ti {
+  font-size: inherit;
+  line-height: 1;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sidebar a i,
+.mobile-nav a i {
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.btn i, .del-btn i, .mode-btn i {
+  font-size: 15px;
+  flex-shrink: 0;
 }
