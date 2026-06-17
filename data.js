@@ -502,25 +502,52 @@ const DEFAULT_COURSE = {
   provider: "Cisco Networking Academy (NetAcad)",
   deadline: "2026-06-30",
   modules: [
-    { id: 1, name: "Data Analytic Projects", done: false },
-    { id: 2, name: "Data Gathering & Investigation", done: false },
-    { id: 3, name: "Preparing & Cleaning Data", done: false },
-    { id: 4, name: "Cleaning Data (Advanced)", done: false },
-    { id: 5, name: "Data Visualization", done: false },
-    { id: 6, name: "SQL & Databases", done: false },
-    { id: 7, name: "Tableau & BI Tools", done: false },
+    { id: 1,  name: "Data Analytic Projects", done: true },
+    { id: 2,  name: "Getting Started with Data Gathering and Investigation", done: false },
+    { id: 3,  name: "Preparing and Cleaning Data for Analysis", done: false },
+    { id: 4,  name: "Transforming Data", done: false },
+    { id: 5,  name: "Analyze the Data Using Statistics", done: false },
+    { id: 6,  name: "Introduction to Relational Databases and SQL", done: false },
+    { id: 7,  name: "Introduction to Structured Queries", done: false },
+    { id: 8,  name: "Introduction to Tableau", done: false },
+    { id: 9,  name: "Ethics and Bias in Data", done: false },
+    { id: 10, name: "Take the Next Steps", done: false },
   ],
 };
 
 // Civil Service Exam subject trackers (percent mastery, 0-100)
+// Based on the 5 main areas of the CSE Professional level (PH)
 const DEFAULT_CSE_SUBJECTS = [
-  { id: "math", name: "Numerical / Math", progress: 0 },
-  { id: "verbal", name: "Verbal / English", progress: 0 },
-  { id: "vocab", name: "Vocabulary", progress: 0 },
-  { id: "analogy", name: "Analogy", progress: 0 },
-  { id: "logic", name: "Logic / Analytical", progress: 0 },
-  { id: "gi", name: "General Information / Constitution", progress: 0 },
-  { id: "clerical", name: "Clerical Operations", progress: 0 },
+  {
+    id: "verbal",
+    name: "Verbal Ability",
+    progress: 0,
+    subtopics: ["English Grammar & Correct Usage", "Vocabulary", "Paragraph Organization", "Reading Comprehension", "Analogy & Logic of Words"],
+  },
+  {
+    id: "analytical",
+    name: "Analytical Ability",
+    progress: 0,
+    subtopics: ["Number Series", "Logical Reasoning", "Pattern Analysis", "Data Interpretation", "Abstract Reasoning"],
+  },
+  {
+    id: "clerical",
+    name: "Clerical Ability",
+    progress: 0,
+    subtopics: ["Spelling", "Alphabetizing & Filing", "Clerical Operations", "Name Checking", "Number Checking"],
+  },
+  {
+    id: "numerical",
+    name: "Numerical Ability",
+    progress: 0,
+    subtopics: ["Basic Math Operations", "Word Problems", "Data Sufficiency", "Fractions & Decimals", "Percentage & Ratio"],
+  },
+  {
+    id: "gi",
+    name: "General Information",
+    progress: 0,
+    subtopics: ["Philippine Constitution", "Code of Conduct (RA 6713)", "Peace & Human Rights", "Environment", "Science & Technology"],
+  },
 ];
 
 // Workout presets for the foldable push-up board
@@ -578,8 +605,9 @@ const PHASES = [
 
 const DEFAULT_STATE = {
   schedule: JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)),
-  // Per-date overrides: { "2026-06-16": { templateKey: "heavy_laundry", blocks: [...], note: "..." }, ... }
-  // If a date has no entry, the day-of-week default (from `schedule`) is used.
+  // Per-date overrides: { "2026-06-16": { templateKey, blocks, note, status } }
+  // status: "draft" | "confirmed" | "completed"
+  // If a date has no entry, the day-of-week default is used.
   dateSchedules: {},
   course: JSON.parse(JSON.stringify(DEFAULT_COURSE)),
   cseSubjects: JSON.parse(JSON.stringify(DEFAULT_CSE_SUBJECTS)),
