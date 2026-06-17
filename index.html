@@ -108,56 +108,92 @@
 
     <!-- ===== SCHEDULE ===== -->
     <section class="page hidden" id="page-schedule">
-      <h1 class="page-title">Schedule</h1>
-      <p class="page-subtitle">Wake 6:00 AM &middot; Bed 11:00 PM &middot; Civil Service Exam &mdash; August 8</p>
-
-      <!-- Calendar view -->
-      <div class="section" id="calendarSection">
-        <div class="card">
-          <div class="flex-between mb-1">
-            <button class="btn btn-ghost" id="calPrevMonth" aria-label="Previous month"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
-            <div class="section-title" id="calMonthLabel"></div>
-            <button class="btn btn-ghost" id="calNextMonth" aria-label="Next month"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
-          </div>
-          <div id="calendarGrid"></div>
-          <div class="mode-description mt-1">Click a date to view or edit that day's schedule. Days with a custom schedule are marked.</div>
+      <div class="schedule-split-header">
+        <div>
+          <h1 class="page-title">Schedule</h1>
+          <p class="page-subtitle">Wake 6:00 AM &middot; Bed 11:00 PM &middot; CSE: Aug 8</p>
         </div>
+        <button class="btn btn-ghost" id="calToggleBtn" title="Toggle calendar">
+          <i class="ti ti-layout-sidebar" aria-hidden="true"></i>
+          <span id="calToggleLabel">Hide calendar</span>
+        </button>
       </div>
 
-      <!-- Selected day view -->
-      <div class="section hidden" id="dayViewSection">
-        <div class="section-head">
-          <div class="section-title" id="selectedDateLabel"></div>
-          <button class="btn btn-ghost" id="backToCalendar"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back to calendar</button>
+      <div class="schedule-split" id="scheduleSplit">
+
+        <!-- LEFT: Calendar panel -->
+        <div class="schedule-cal-panel" id="calPanel">
+          <div class="cal-panel-inner">
+            <div class="cal-nav">
+              <button class="btn btn-ghost" id="calPrevMonth" aria-label="Previous month"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+              <div class="section-title" id="calMonthLabel" style="font-size:14px;"></div>
+              <button class="btn btn-ghost" id="calNextMonth" aria-label="Next month"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+            </div>
+            <div id="calendarGrid"></div>
+            <div class="cal-legend">
+              <span><span class="cal-dot draft"></span> Draft</span>
+              <span><span class="cal-dot confirmed"></span> Confirmed</span>
+              <span><span class="cal-dot completed"></span> Completed</span>
+            </div>
+          </div>
         </div>
 
-        <div class="card mb-1">
-          <div class="section-head">
-            <div class="section-title" style="font-size:14px;">Choose a template</div>
-          </div>
-          <div class="mode-switcher" id="templateSwitcher"></div>
-          <div class="mode-description" id="templateDescription"></div>
+        <!-- RIGHT: Day panel -->
+        <div class="schedule-day-panel" id="dayPanel">
 
-          <div class="edit-toggle-row">
-            <button class="btn" id="editToggle"><i class="ti ti-pencil" aria-hidden="true"></i> Edit schedule</button>
+          <!-- No date selected yet -->
+          <div id="dayPanelEmpty" class="day-panel-empty">
+            <i class="ti ti-calendar" aria-hidden="true"></i>
+            <p>Select a date from the calendar to view or edit its schedule.</p>
           </div>
-          <div id="scheduleRows"></div>
-          <div id="addBlockContainer"></div>
-          <div id="noteContainer"></div>
-        </div>
 
-        <div class="card">
-          <div class="section-head">
-            <div class="section-title" style="font-size:14px;">Daily checklist</div>
-          </div>
-          <div class="progress-wrap mb-1">
-            <div class="progress-bar"><div class="progress-fill" id="dayProgress" style="width:0%"></div></div>
-            <div class="progress-label" id="dayProgressLabel">0 / 0</div>
-          </div>
-          <div id="checklistRows"></div>
-          <div class="add-row">
-            <input type="text" id="newTaskInput" placeholder="Add a task for this day...">
-            <button class="btn" id="addTaskBtn"><i class="ti ti-plus" aria-hidden="true"></i> Add</button>
+          <!-- Day content (shown when a date is selected) -->
+          <div id="dayPanelContent" class="hidden">
+
+            <!-- Day header with status badges -->
+            <div class="day-panel-header">
+              <div>
+                <div class="section-title" id="selectedDateLabel"></div>
+                <div class="day-status-row" id="dayStatusRow"></div>
+              </div>
+              <div class="day-action-btns" id="dayActionBtns"></div>
+            </div>
+
+            <!-- Template picker (only in Draft mode) -->
+            <div class="card mb-1" id="templateCard">
+              <div class="section-head">
+                <div class="section-title" style="font-size:13px; color: var(--text-secondary);">Template</div>
+              </div>
+              <div class="mode-switcher" id="templateSwitcher"></div>
+              <div class="mode-description" id="templateDescription"></div>
+              <div class="edit-toggle-row">
+                <button class="btn" id="editToggle"><i class="ti ti-pencil" aria-hidden="true"></i> Edit schedule</button>
+              </div>
+            </div>
+
+            <!-- Schedule blocks -->
+            <div class="card mb-1">
+              <div id="scheduleRows"></div>
+              <div id="addBlockContainer"></div>
+              <div id="noteContainer"></div>
+            </div>
+
+            <!-- Daily checklist -->
+            <div class="card">
+              <div class="section-head">
+                <div class="section-title" style="font-size:14px;">Daily checklist</div>
+              </div>
+              <div class="progress-wrap mb-1">
+                <div class="progress-bar"><div class="progress-fill" id="dayProgress" style="width:0%"></div></div>
+                <div class="progress-label" id="dayProgressLabel">0 / 0</div>
+              </div>
+              <div id="checklistRows"></div>
+              <div class="add-row" id="checklistAddRow">
+                <input type="text" id="newTaskInput" placeholder="Add a task...">
+                <button class="btn" id="addTaskBtn"><i class="ti ti-plus" aria-hidden="true"></i> Add</button>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
