@@ -204,22 +204,35 @@ function renderHome() {
   });
 }
 
-// ===================== SCHEDULE PAGE (Calendar) =====================
+// ===================== SCHEDULE PAGE (Split layout) =====================
 
-// Get the schedule data for a given date: returns { templateKey, blocks, note }
+let calPanelVisible = true;
+
+function getDateStatus(dateKey) {
+  const entry = state.dateSchedules[dateKey];
+  if (entry && entry.status) return entry.status;
+  // Auto-determine: past dates without an entry default to "completed"
+  const today = getTodayDateString();
+  if (dateKey < today) return "completed";
+  return "draft";
+}
+
+function isDateLocked(dateKey) {
+  const status = getDateStatus(dateKey);
+  return status === "completed";
+}
+
 function getScheduleForDate(dateKey) {
-  if (state.dateSchedules[dateKey]) {
-    return state.dateSchedules[dateKey];
-  }
-  // Fall back to day-of-week default mode
+  if (state.dateSchedules[dateKey]) return state.dateSchedules[dateKey];
   const dow = dateKeyToDayOfWeek(dateKey);
   const daySchedule = state.schedule[dow];
   const modeData = daySchedule.modes[daySchedule.activeMode];
   return {
-    templateKey: daySchedule.activeMode === "no_laundry" && dow === "Sun" ? "rest_day" : daySchedule.activeMode,
+    templateKey: dow === "Sun" ? "rest_day" : daySchedule.activeMode,
     blocks: JSON.parse(JSON.stringify(modeData.blocks)),
     note: modeData.note,
     badges: daySchedule.badges,
+    status: getDateStatus(dateKey),
   };
 }
 
@@ -230,20 +243,32 @@ function ensureDateScheduleEntry(dateKey) {
       templateKey: data.templateKey,
       blocks: JSON.parse(JSON.stringify(data.blocks)),
       note: data.note,
+      status: getDateStatus(dateKey),
     };
+  }
+  if (!state.dateSchedules[dateKey].status) {
+    state.dateSchedules[dateKey].status = getDateStatus(dateKey);
   }
   return state.dateSchedules[dateKey];
 }
 
 function renderSchedulePage() {
+  // Wire up calendar toggle
+  const toggleBtn = document.getElementById("calToggleBtn");
+  const calPanel = document.getElementById("calPanel");
+  const label = document.getElementById("calToggleLabel");
+  toggleBtn.onclick = () => {
+    calPanelVisible = !calPanelVisible;
+    calPanel.classList.toggle("hidden", !calPanelVisible);
+    label.textContent = calPanelVisible ? "Hide calendar" : "Show calendar";
+    toggleBtn.querySelector("i").className = calPanelVisible ? "ti ti-layout-sidebar" : "ti ti-layout-sidebar-right";
+  };
+  calPanel.classList.toggle("hidden", !calPanelVisible);
+  label.textContent = calPanelVisible ? "Hide calendar" : "Show calendar";
+
+  renderCalendar();
   if (selectedDateKey) {
-    document.getElementById("calendarSection").classList.add("hidden");
-    document.getElementById("dayViewSection").classList.remove("hidden");
-    renderDayView();
-  } else {
-    document.getElementById("calendarSection").classList.remove("hidden");
-    document.getElementById("dayViewSection").classList.add("hidden");
-    renderCalendar();
+    renderDayPanel(selectedDateKey);
   }
 }
 
@@ -267,18 +292,13 @@ function renderCalendar() {
   grid.innerHTML = "";
 
   const table = document.createElement("table");
-  table.style.width = "100%";
-  table.style.borderCollapse = "collapse";
+  table.style.cssText = "width:100%; border-collapse:collapse;";
 
   const thead = document.createElement("tr");
-  ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach((d) => {
+  ["M","T","W","T","F","S","S"].forEach((d) => {
     const th = document.createElement("th");
     th.textContent = d;
-    th.style.fontSize = "11px";
-    th.style.fontWeight = "600";
-    th.style.color = "var(--text-secondary)";
-    th.style.padding = "6px 2px";
-    th.style.textAlign = "center";
+    th.style.cssText = "font-size:11px; font-weight:600; color:var(--text-secondary); padding:4px 2px; text-align:center;";
     thead.appendChild(th);
   });
   table.appendChild(thead);
@@ -289,142 +309,214 @@ function renderCalendar() {
     const tr = document.createElement("tr");
     week.forEach((dayNum) => {
       const td = document.createElement("td");
-      td.style.textAlign = "center";
-      td.style.padding = "3px";
-      if (dayNum === null) {
-        tr.appendChild(td);
-        return;
-      }
+      td.style.cssText = "text-align:center; padding:2px;";
+      if (dayNum === null) { tr.appendChild(td); return; }
+
       const dateKey = dateToKey(calYear, calMonth, dayNum);
-      const btn = document.createElement("button");
-      btn.textContent = dayNum;
-      btn.style.width = "100%";
-      btn.style.aspectRatio = "1";
-      btn.style.border = "1px solid var(--border-soft)";
-      btn.style.borderRadius = "var(--radius-md)";
-      btn.style.background = dateKey === todayKey ? "var(--accent-light)" : "var(--surface)";
-      btn.style.color = dateKey === todayKey ? "var(--accent-text)" : "var(--text-primary)";
-      btn.style.fontWeight = dateKey === todayKey ? "700" : "500";
-      btn.style.fontSize = "13px";
-      btn.style.cursor = "pointer";
-      btn.style.position = "relative";
-      btn.style.transition = "all 0.15s";
+      const status = getDateStatus(dateKey);
+      const isToday = dateKey === todayKey;
+      const isSelected = dateKey === selectedDateKey;
 
-      if (state.dateSchedules[dateKey]) {
-        // small dot indicator for customized days
-        btn.style.boxShadow = "inset 0 -3px 0 var(--accent)";
+      const btn = document.createElement("button");
+      btn.style.cssText = "width:32px; height:32px; border-radius:var(--radius-md); font-size:12px; font-weight:500; cursor:pointer; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:all 0.15s; gap:2px;";
+
+      if (isSelected) {
+        btn.style.background = "var(--accent)";
+        btn.style.color = "#fff";
+        btn.style.border = "2px solid var(--accent)";
+      } else if (isToday) {
+        btn.style.background = "var(--accent-light)";
+        btn.style.color = "var(--accent-text)";
+        btn.style.border = "2px solid var(--accent)";
+        btn.style.fontWeight = "700";
+      } else {
+        btn.style.background = "var(--surface)";
+        btn.style.color = "var(--text-primary)";
+        btn.style.border = "1px solid var(--border-soft)";
       }
 
-      btn.onmouseenter = () => { if (dateKey !== todayKey) btn.style.borderColor = "var(--accent)"; };
-      btn.onmouseleave = () => { if (dateKey !== todayKey) btn.style.borderColor = "var(--border-soft)"; };
+      btn.innerHTML = '<span>' + dayNum + '</span>';
 
+      // Status dot
+      if (status !== "draft" || state.dateSchedules[dateKey]) {
+        const dot = document.createElement("span");
+        dot.style.cssText = "width:5px; height:5px; border-radius:50%; flex-shrink:0;";
+        dot.style.background = status === "completed" ? "var(--success)"
+          : status === "confirmed" ? "var(--accent)"
+          : "var(--text-tertiary)";
+        btn.appendChild(dot);
+      }
+
+      btn.onmouseenter = () => { if (!isSelected) btn.style.borderColor = "var(--accent)"; };
+      btn.onmouseleave = () => { if (!isSelected) btn.style.borderColor = isToday ? "var(--accent)" : "var(--border-soft)"; };
       btn.onclick = () => {
         selectedDateKey = dateKey;
         scheduleEditMode = false;
-        renderSchedulePage();
+        renderCalendar();
+        renderDayPanel(dateKey);
+        // On mobile, scroll to day panel
+        const dayPanel = document.getElementById("dayPanel");
+        if (window.innerWidth <= 860) dayPanel.scrollIntoView({ behavior: "smooth" });
       };
+
       td.appendChild(btn);
       tr.appendChild(td);
     });
     table.appendChild(tr);
   });
-
   grid.appendChild(table);
 }
 
-function renderDayView() {
-  document.getElementById("selectedDateLabel").textContent = formatDateLabel(selectedDateKey);
-  document.getElementById("backToCalendar").onclick = () => {
-    selectedDateKey = null;
-    scheduleEditMode = false;
-    renderSchedulePage();
-  };
+function renderDayPanel(dateKey) {
+  document.getElementById("dayPanelEmpty").classList.add("hidden");
+  document.getElementById("dayPanelContent").classList.remove("hidden");
 
-  const entry = ensureDateScheduleEntry(selectedDateKey);
+  const entry = ensureDateScheduleEntry(dateKey);
+  const status = entry.status;
+  const locked = status === "completed";
+  const today = getTodayDateString();
+  const isPast = dateKey < today;
 
-  // Template switcher
-  const switcherEl = document.getElementById("templateSwitcher");
-  const descEl = document.getElementById("templateDescription");
-  switcherEl.innerHTML = "";
-  Object.keys(SCHEDULE_TEMPLATES).forEach((key) => {
-    const tpl = SCHEDULE_TEMPLATES[key];
-    const btn = document.createElement("button");
-    btn.className = "mode-btn" + (entry.templateKey === key ? " active" : "");
-    btn.textContent = tpl.label;
-    btn.onclick = () => {
-      entry.templateKey = key;
-      entry.blocks = JSON.parse(JSON.stringify(tpl.blocks));
-      entry.note = tpl.note;
-      Storage.save(state);
-      renderDayView();
-    };
-    switcherEl.appendChild(btn);
-  });
-  descEl.textContent = (SCHEDULE_TEMPLATES[entry.templateKey] || {}).description || "Custom schedule for this day.";
+  // Header
+  document.getElementById("selectedDateLabel").textContent = formatDateLabel(dateKey);
 
-  // Edit toggle
-  const editBtn = document.getElementById("editToggle");
-  editBtn.innerHTML = scheduleEditMode
-    ? '<i class="ti ti-check" aria-hidden="true"></i> Done editing'
-    : '<i class="ti ti-pencil" aria-hidden="true"></i> Edit schedule';
-  editBtn.classList.toggle("active", scheduleEditMode);
-  editBtn.onclick = () => {
-    scheduleEditMode = !scheduleEditMode;
-    renderDayView();
-  };
+  // Status row
+  const statusRow = document.getElementById("dayStatusRow");
+  const statusLabels = { draft: "Draft", confirmed: "Confirmed", completed: "Completed" };
+  const statusClasses = { draft: "status-draft", confirmed: "status-confirmed", completed: "status-completed" };
+  statusRow.innerHTML = '<span class="status-badge ' + statusClasses[status] + '">' + statusLabels[status] + '</span>' +
+    (isPast && status === "draft" ? '<span class="status-badge status-past">Past</span>' : '');
 
-  if (scheduleEditMode) {
-    Components.renderScheduleEdit(entry.blocks, entry.note, {
-      onFieldChange: (i, field, value) => {
-        entry.blocks[i][field] = value;
-        Storage.save(state);
-      },
-      onDeleteBlock: (i) => {
-        entry.blocks.splice(i, 1);
-        Storage.save(state);
-        renderDayView();
-      },
-      onAddBlock: (time, label, cls) => {
-        entry.blocks.push({ time, label, cls });
-        Storage.save(state);
-        renderDayView();
-      },
-      onReorder: (from, to) => {
-        const moved = entry.blocks.splice(from, 1)[0];
-        entry.blocks.splice(to, 0, moved);
-        Storage.save(state);
-        renderDayView();
-      },
-      onNoteChange: (val) => {
-        entry.note = val;
-        Storage.save(state);
-      },
-    });
-  } else {
-    Components.renderScheduleView(entry.blocks, entry.note);
+  // Action buttons
+  const actionBtns = document.getElementById("dayActionBtns");
+  actionBtns.innerHTML = "";
+
+  if (status === "draft") {
+    const confirmBtn = document.createElement("button");
+    confirmBtn.className = "btn btn-primary";
+    confirmBtn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Confirm';
+    confirmBtn.onclick = () => { entry.status = "confirmed"; Storage.save(state); scheduleEditMode = false; renderCalendar(); renderDayPanel(dateKey); };
+    actionBtns.appendChild(confirmBtn);
   }
 
-  // Checklist for this date (keyed by date string so each day is independent)
-  renderChecklistForDate(selectedDateKey);
+  if (status === "confirmed") {
+    const completeBtn = document.createElement("button");
+    completeBtn.className = "btn";
+    completeBtn.style.cssText = "border-color:var(--success); color:var(--success-text);";
+    completeBtn.innerHTML = '<i class="ti ti-circle-check" aria-hidden="true"></i> Mark complete';
+    completeBtn.onclick = () => { entry.status = "completed"; Storage.save(state); scheduleEditMode = false; renderCalendar(); renderDayPanel(dateKey); };
+    actionBtns.appendChild(completeBtn);
+
+    const unconfirmBtn = document.createElement("button");
+    unconfirmBtn.className = "btn btn-ghost";
+    unconfirmBtn.innerHTML = '<i class="ti ti-lock-open" aria-hidden="true"></i> Back to draft';
+    unconfirmBtn.onclick = () => { entry.status = "draft"; Storage.save(state); renderCalendar(); renderDayPanel(dateKey); };
+    actionBtns.appendChild(unconfirmBtn);
+  }
+
+  if (status === "completed") {
+    const unlockBtn = document.createElement("button");
+    unlockBtn.className = "btn btn-ghost";
+    unlockBtn.style.cssText = "border-color:var(--coral); color:var(--coral-text);";
+    unlockBtn.innerHTML = '<i class="ti ti-lock-open" aria-hidden="true"></i> Unlock';
+    unlockBtn.onclick = () => {
+      if (confirm("Unlock this completed day for editing? This changes it back to Draft.")) {
+        entry.status = "draft";
+        Storage.save(state);
+        renderCalendar();
+        renderDayPanel(dateKey);
+      }
+    };
+    actionBtns.appendChild(unlockBtn);
+  }
+
+  // Template card — hide when locked
+  const templateCard = document.getElementById("templateCard");
+  if (locked) {
+    templateCard.classList.add("hidden");
+  } else {
+    templateCard.classList.remove("hidden");
+    // Template switcher
+    const switcherEl = document.getElementById("templateSwitcher");
+    const descEl = document.getElementById("templateDescription");
+    switcherEl.innerHTML = "";
+    Object.keys(SCHEDULE_TEMPLATES).forEach((key) => {
+      const tpl = SCHEDULE_TEMPLATES[key];
+      const btn = document.createElement("button");
+      btn.className = "mode-btn" + (entry.templateKey === key ? " active" : "");
+      btn.textContent = tpl.label;
+      btn.onclick = () => {
+        entry.templateKey = key;
+        entry.blocks = JSON.parse(JSON.stringify(tpl.blocks));
+        entry.note = tpl.note;
+        Storage.save(state);
+        renderDayPanel(dateKey);
+      };
+      switcherEl.appendChild(btn);
+    });
+    descEl.textContent = (SCHEDULE_TEMPLATES[entry.templateKey] || {}).description || "";
+
+    // Edit toggle
+    const editBtn = document.getElementById("editToggle");
+    editBtn.innerHTML = scheduleEditMode
+      ? '<i class="ti ti-check" aria-hidden="true"></i> Done editing'
+      : '<i class="ti ti-pencil" aria-hidden="true"></i> Edit schedule';
+    editBtn.classList.toggle("active", scheduleEditMode);
+    editBtn.onclick = () => { scheduleEditMode = !scheduleEditMode; renderDayPanel(dateKey); };
+  }
+
+  // Locked notice
+  const existingNotice = document.getElementById("lockedNotice");
+  if (existingNotice) existingNotice.remove();
+  if (locked) {
+    const notice = document.createElement("div");
+    notice.id = "lockedNotice";
+    notice.className = "locked-notice";
+    notice.innerHTML = '<i class="ti ti-lock" aria-hidden="true"></i> This day is completed and locked. Click "Unlock" to edit it.';
+    document.getElementById("scheduleRows").parentElement.prepend(notice);
+  }
+
+  // Schedule blocks
+  if (locked || !scheduleEditMode) {
+    Components.renderScheduleView(entry.blocks, entry.note);
+  } else {
+    Components.renderScheduleEdit(entry.blocks, entry.note, {
+      onFieldChange: (i, field, value) => { entry.blocks[i][field] = value; Storage.save(state); },
+      onDeleteBlock: (i) => { entry.blocks.splice(i, 1); Storage.save(state); renderDayPanel(dateKey); },
+      onAddBlock: (time, label, cls) => { entry.blocks.push({ time, label, cls }); Storage.save(state); renderDayPanel(dateKey); },
+      onReorder: (from, to) => { const m = entry.blocks.splice(from, 1)[0]; entry.blocks.splice(to, 0, m); Storage.save(state); renderDayPanel(dateKey); },
+      onNoteChange: (val) => { entry.note = val; Storage.save(state); },
+    });
+  }
+
+  // Checklist
+  const addRow = document.getElementById("checklistAddRow");
+  if (locked) {
+    addRow.classList.add("hidden");
+  } else {
+    addRow.classList.remove("hidden");
+  }
+  renderChecklistForDate(dateKey, locked);
 }
 
-function renderChecklistForDate(dateKey) {
+function renderChecklistForDate(dateKey, locked) {
   if (!state.checklist[dateKey]) {
-    // Seed from day-of-week default checklist on first visit
     const dow = dateKeyToDayOfWeek(dateKey);
     state.checklist[dateKey] = JSON.parse(JSON.stringify(state.checklist[dow] || []));
   }
   const items = state.checklist[dateKey];
   Components.renderChecklist(items, dateKey, {
     onToggle: (i, checked) => {
+      if (locked) return;
       items[i].done = checked;
       Storage.save(state);
-      renderChecklistForDate(dateKey);
+      renderChecklistForDate(dateKey, locked);
     },
     onDelete: (i) => {
+      if (locked) return;
       items.splice(i, 1);
       Storage.save(state);
-      renderChecklistForDate(dateKey);
+      renderChecklistForDate(dateKey, locked);
     },
   });
 }
@@ -949,7 +1041,7 @@ document.addEventListener("DOMContentLoaded", () => {
       state.checklist[selectedDateKey].push({ text: inp.value.trim(), done: false });
       inp.value = "";
       Storage.save(state);
-      renderChecklistForDate(selectedDateKey);
+      renderChecklistForDate(selectedDateKey, isDateLocked(selectedDateKey));
     }
   };
   document.getElementById("newTaskInput").onkeydown = (e) => {
